@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Flashcard Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Flashcard Generator</h1>
+
+        <input type="text" id="topic" placeholder="Enter any topic">
+        <button onclick="generate()">Generate Flashcards</button>
+
+        <div id="recent-topics">
+    <h3>Recent Topics:</h3>
+    <div id="recent-list"></div>
+    <button onclick="clearRecent()">Clear Recent Topics</button>
+    <button onclick="clearAll()">Clear All</button> <!-- New button -->
+</div>
+
+        <div id="loading" style="display:none;">Generating flashcards...</div>
+
+        <div id="cards"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
