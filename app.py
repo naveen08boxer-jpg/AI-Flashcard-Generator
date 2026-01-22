@@ -1,25 +1,44 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from dotenv import load_dotenv
+import openai
 import os
+import json
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route("/")
 def home():
-    return "AI Flashcard Generator API is running"
+    return render_template("index.html")
 
 @app.route("/generate", methods=["POST"])
 def generate_flashcards():
-    data = request.get_json()
-    topic = data.get("topic", "AI")
+    data = request.json
+    topic = data.get("topic")
 
-    flashcards = [
-        {"question": f"What is {topic}?", "answer": f"{topic} is an important concept in computer science."},
-        {"question": f"Why is {topic} used?", "answer": f"{topic} is used to solve real-world problems efficiently."},
-        {"question": f"Advantages of {topic}?", "answer": f"{topic} improves performance and scalability."},
-        {"question": f"Applications of {topic}?", "answer": f"{topic} is used in education, healthcare, and industry."},
-        {"question": f"Future scope of {topic}?", "answer": f"{topic} has a strong future with growing demand."}
+    prompt = f"""
+    Generate exactly 5 educational flashcards on the topic "{topic}".
+    Return only JSON in this format:
+    [
+      {{"question": "...", "answer": "..."}},
+      {{"question": "...", "answer": "..."}}
     ]
+    """
 
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are an educational assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    flashcards = json.loads(response.choices[0].message.content)
     return jsonify(flashcards)
+
+if __name__ == "__main__":
+    app.run(debug=True)
