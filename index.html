@@ -1,29 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>AI Flashcard Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>AI Flashcard Generator</h1>
 
-        <input type="text" id="topic" placeholder="Enter any topic">
-        <button onclick="generate()">Generate Flashcards</button>
+<h1>AI Flashcard Generator</h1>
 
-        <div id="recent-topics">
-    <h3>Recent Topics:</h3>
-    <div id="recent-list"></div>
-    <button onclick="clearRecent()">Clear Recent Topics</button>
-    <button onclick="clearAll()">Clear All</button> <!-- New button -->
+<div class="controls">
+    <input type="text" id="topic" placeholder="Enter any topic">
+    <button onclick="generate()">Generate</button>
+    <button onclick="clearTopic()">Clear Topic</button>
+    <button onclick="clearAll()">Clear All</button>
 </div>
 
-        <div id="loading" style="display:none;">Generating flashcards...</div>
+<div id="flashcards"></div>
 
-        <div id="cards"></div>
-    </div>
+<script>
+async function generate() {
+    const topic = document.getElementById("topic").value.trim();
+    if (!topic) {
+        alert("Please enter a topic");
+        return;
+    }
 
-    <script src="script.js"></script>
+    const response = await fetch("/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ topic })
+    });
+
+    const data = await response.json();
+    const container = document.getElementById("flashcards");
+    container.innerHTML = "";
+
+    data.forEach(card => {
+        container.innerHTML += `
+        <div class="flashcard" onclick="this.classList.toggle('flip')">
+            <div class="inner">
+                <div class="front">
+                    <h3>${card.question}</h3>
+                    <small>Click to flip</small>
+                </div>
+                <div class="back">
+                    <p>${card.answer}</p>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+}
+
+function clearTopic() {
+    document.getElementById("topic").value = "";
+}
+
+function clearAll() {
+    document.getElementById("flashcards").innerHTML = "";
+    document.getElementById("topic").value = "";
+}
+</script>
+
 </body>
 </html>
